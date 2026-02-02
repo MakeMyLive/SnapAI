@@ -1,2 +1,57 @@
-# SnapAI
-An AI-powered, free and open-source anti-cheat.
+<div align="center">
+  <h1 align="center">SnapAI</h1>
+
+  <p align="center">
+    An AI-powered, free and open-source anti-cheat for Minecraft servers.
+  <br />
+  <a href="https://github.com/MakeMyLive/SnapAI/issues">Report Bug</a>
+   ·
+  <a href="https://github.com/MakeMyLive/SnapAI/issues">Request Feature</a>
+ </p>
+
+ <div>
+  <a href="https://github.com/MakeMyLive/SnapAI/actions/workflows/gradle.yml">
+   <img alt="Java CI" src="https://github.com/MakeMyLive/SnapAI/actions/workflows/gradle.yml/badge.svg">
+  </a>
+
+  <a href="https://github.com/MakeMyLive/SnapAI/">
+   <img alt="Views" src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FMakeMyLive%2FSnapAI%2FREADME.md&label=Views&countColor=%23555555&style=flat&labelStyle=none">
+  </a>
+ </div>
+
+[//]: # ( <p align="center">)
+
+[//]: # (    <a href="README.md"><b>English</b></a>)
+
+[//]: # (    ·)
+
+[//]: # (    <a href="README.ru.md">Русский</a>)
+
+[//]: # ( </p>)
+</div>
+
+---
+
+## Downloads
+
+Official builds are available via [GitHub Releases](https://github.com/MakeMyLive/SnapAI/releases). 
+
+## Compiling From Source
+
+1. `git clone https://github.com/MakeMyLive/SnapAI.git`
+2. `cd SnapAI`
+3. `./gradlew build`
+4. The final jars will compile into the `build/libs` folder
+
+
+## Credits & Attribution
+
+Parts of SnapAI are derived from the open-source [GrimAC](https://github.com/GrimAnticheat/Grim) project. Specifically, certain core components incorporate code and ideas originally developed by GrimAC, DefineOutside, and its contributors.
+
+These derived portions remain under the terms of the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html), as per the original GrimAC project's license.
+
+We extend our sincere gratitude to the GrimAC team for their foundational work, which has significantly contributed to the development of SnapAI.
+
+## License
+
+This project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html). You can find the full license text in the [LICENSE](LICENSE) file.
