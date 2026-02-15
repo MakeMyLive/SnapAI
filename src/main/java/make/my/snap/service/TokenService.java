@@ -1,0 +1,190 @@
+package make.my.snap.service;
+
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
+import okhttp3.*;
+import make.my.snap.SnapAI;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+public class TokenService {
+    private final SnapAI plugin;
+    private final OkHttpClient httpClient;
+    private String storedToken;
+    private Map<String, Object> cachedSubscriptionInfo;
+    private long lastSubscriptionFetch;
+
+    private static final long CACHE_TTL_MILLIS = TimeUnit.SECONDS.toMillis(10);
+
+    private static final Moshi MOSHI = new Moshi.Builder().build();
+    private static final Type MAP_STRING_OBJECT_TYPE = Types.newParameterizedType(Map.class, String.class, Object.class);
+    private static final JsonAdapter<Map<String, Object>> RESPONSE_ADAPTER = MOSHI.adapter(MAP_STRING_OBJECT_TYPE);
+
+    public TokenService(SnapAI plugin) {
+        this.plugin = plugin;
+        this.httpClient = plugin.getHttpClient();
+        this.storedToken = plugin.getConfig().getString("auth.token", null);
+        this.cachedSubscriptionInfo = null;
+        this.lastSubscriptionFetch = 0L;
+    }
+
+    public void setToken(String token) {
+        this.storedToken = token;
+        this.cachedSubscriptionInfo = null;
+        this.lastSubscriptionFetch = 0L;
+        plugin.getConfig().set("auth.token", token);
+        plugin.saveConfig();
+        plugin.getLogger().info("Token updated successfully");
+    }
+
+    public String getToken() {
+        return storedToken;
+    }
+
+    public boolean hasToken() {
+        return storedToken != null && !storedToken.isEmpty();
+    }
+
+    public CompletableFuture<Boolean> validateToken() {
+        if (!hasToken()) {
+            return CompletableFuture.completedFuture(false);
+        }
+
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String baseUrl = plugin.getServerUrl();
+                if (baseUrl == null || baseUrl.isEmpty()) {
+                    plugin.getLogger().warning("Server URL is not configured");
+                    return false;
+                }
+                String url = baseUrl + "/subscription/" + storedToken;
+                Request request = new Request.Builder()
+                        .url(url)
+                        .get()
+                        .build();
+
+                try (Response response = httpClient.newCall(request).execute()) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        String responseBody = response.body().string();
+                        Map<String, Object> result = RESPONSE_ADAPTER.fromJson(responseBody);
+                        return result != null && result.containsKey("telegram_id");
+                    }
+                }
+            } catch (Exception e) {
+                plugin.getLogger().warning("Token validation failed: " + e.getMessage());
+            }
+            return false;
+        });
+    }
+
+    public CompletableFuture<Map<String, Object>> getSubscriptionInfoAsync() {
+        return CompletableFuture.supplyAsync(this::getSubscriptionInfo);
+    }
+
+    public Map<String, Object> getSubscriptionInfo() {
+        if (!hasToken()) {
+            this.cachedSubscriptionInfo = null;
+            this.lastSubscriptionFetch = 0L;
+            return new HashMap<>();
+        }
+
+        long now = System.currentTimeMillis();
+        if (cachedSubscriptionInfo != null && now - lastSubscriptionFetch < CACHE_TTL_MILLIS) {
+            return new HashMap<>(cachedSubscriptionInfo);
+        }
+
+        try {
+            String baseUrl = plugin.getServerUrl();
+            if (baseUrl == null || baseUrl.isEmpty()) {
+                plugin.getLogger().warning("Server URL is not configured");
+                return new HashMap<>();
+            }
+            String url = baseUrl + "/subscription/" + storedToken;
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+
+            try (Response response = httpClient.newCall(request).execute()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String responseBody = response.body().string();
+                    Map<String, Object> result = RESPONSE_ADAPTER.fromJson(responseBody);
+                    if (result != null) {
+                        cachedSubscriptionInfo = new HashMap<>(result);
+                        lastSubscriptionFetch = now;
+                        return result;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to get subscription info: " + e.getMessage());
+        }
+
+        return new HashMap<>();
+    }
+
+    public void clearToken() {
+        this.storedToken = null;
+        this.cachedSubscriptionInfo = null;
+        this.lastSubscriptionFetch = 0L;
+        plugin.getConfig().set("auth.token", null);
+        plugin.saveConfig();
+        plugin.getLogger().info("Token cleared");
+    }
+
+    public String addTokenToRequest(String jsonBody) {
+        if (!hasToken()) {
+            return jsonBody;
+        }
+
+        try {
+            Map<String, Object> payload = RESPONSE_ADAPTER.fromJson(jsonBody);
+            if (payload == null) {
+                return jsonBody;
+            }
+            payload.put("token", storedToken);
+            return RESPONSE_ADAPTER.toJson(payload);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to add token to request: " + e.getMessage());
+        }
+
+        return jsonBody;
+    }
+
+    public boolean isPremiumActive() {
+        Map<String, Object> subInfo = getSubscriptionInfo();
+        if (subInfo.isEmpty()) {
+            return false;
+        }
+
+        Object remainingDays = subInfo.get("remaining_days");
+        if (remainingDays instanceof Number) {
+            int days = ((Number) remainingDays).intValue();
+            return days > 0 || days == -1;
+        }
+        return false;
+    }
+
+    public int getRemainingDays() {
+        Map<String, Object> subInfo = getSubscriptionInfo();
+        Object remainingDays = subInfo.get("remaining_days");
+        return remainingDays instanceof Number ? ((Number) remainingDays).intValue() : 0;
+    }
+
+    public String getLastIp() {
+        Map<String, Object> subInfo = getSubscriptionInfo();
+        Object lastIp = subInfo.get("last_ip");
+        return lastIp != null ? lastIp.toString() : "Not bound";
+    }
+
+    public boolean canRebindIp() {
+        Map<String, Object> subInfo = getSubscriptionInfo();
+        Object canRebind = subInfo.get("can_rebind");
+        return Boolean.TRUE.equals(canRebind);
+    }
+}

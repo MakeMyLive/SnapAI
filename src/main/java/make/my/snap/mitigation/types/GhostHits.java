@@ -1,0 +1,23 @@
+package make.my.snap.mitigation.types;
+
+import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import org.bukkit.entity.Player;
+import make.my.snap.SnapAI;
+
+import java.util.concurrent.ThreadLocalRandom;
+
+public class GhostHits implements PacketReceiveMitigation {
+
+    private final double chance;
+
+    public GhostHits(SnapAI plugin) {
+        this.chance = plugin.getConfig().getDouble("mitigations.types.ghost-hits.chance", 0.25);
+    }
+
+    @Override
+    public void onPacket(Player player, PacketReceiveEvent event) {
+        if (ThreadLocalRandom.current().nextDouble() < chance) {
+            event.setCancelled(true);
+        }
+    }
+}

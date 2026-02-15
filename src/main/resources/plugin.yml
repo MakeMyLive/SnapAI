@@ -1,0 +1,58 @@
+name: SnapAI
+version: 1.1.2
+main: make.my.snap.SnapAI
+api-version: '1.16'
+author: makemy
+website: www.snapai.tech
+commands:
+  snapai:
+    description: Main command for SnapAI neural anticheat.
+    aliases: [mac, ac, snap]
+    usage: "Usage: /snapai <alerts|check|stats|history|record|token|...>"
+    permission: snapai.command
+    permission-message: "§bSnapAI §8» §cYou do not have permission."
+
+permissions:
+  snapai.admin:
+    default: op
+    children:
+      snapai.mod: true
+      snapai.dev: true
+      snapai.token: true
+      snapai.crash: true
+      snapai.reload: true
+      snapai.punish: true
+  snapai.mod:
+    default: false
+    children:
+      snapai.command: true
+      snapai.alerts: true
+      snapai.history: true
+      snapai.stats: true
+  snapai.dev:
+    default: false
+    children:
+      snapai.record: true
+      snapai.hud: true
+  snapai.command:
+    default: op
+  snapai.alerts:
+    default: op
+  snapai.history:
+    default: op
+  snapai.stats:
+    default: op
+  snapai.server:
+    default: op
+  snapai.token:
+    default: op
+  snapai.punish:
+    default: op
+  snapai.crash:
+    default: op
+  snapai.reload:
+    default: op
+  snapai.record:
+    default: op
+  snapai.hud:
+    default: op

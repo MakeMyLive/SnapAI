@@ -1,0 +1,330 @@
+#                      Конфигурация SnapAI
+#                    Локальный античит с ИИ
+#                        Website: www.snapai.tech
+
+# Язык, используемый для всех сообщений плагина.
+# The language used for all plugin messages.
+#
+# Доступные по умолчанию / Default languages: en, ru.
+# Плагин автоматически создаст файл lang_<en/ru>.yml в своей папке.
+language: "en"
+
+
+server:
+  url: "https://api.snapai.tech/analyze"
+  timeout: 30
+
+#              Настройки модуля машинного обучения (ML)
+#              Machine Learning (ML) Module Settings
+ml-check:
+  # Включить/выключить основной модуль анализа?
+  # Enable/disable the main analysis module?
+  enabled: true
+
+  # Количество кадров, отправляемых на анализ. !!! НЕ МЕНЯТЬ !!!
+  # Number of "frames" sent for analysis. !!! DO NOT CHANGE !!!
+  frames-to-analyze: 150
+
+  # Порог уверенности модели ИИ для фиксации нарушения (0.0 - 1.0).
+  # The AI model's confidence threshold to flag a violation (0.0 - 1.0).
+  classification-threshold: 0.80
+
+  # Количество очков нарушений (VL), добавляемое за одно срабатывание.
+  # Amount of Violation Level (VL) points added per flag.
+  vl-increment: 0.5
+
+  # Порог VL для наказания (используется ТОЛЬКО для режимов 'INSTANT' и 'ANIMATED').
+  # VL threshold for punishment (used ONLY for 'INSTANT' and 'ANIMATED' modes).
+  violation-threshold: 7
+
+  # "Окно" жизни одного флага в секундах. VL от флага плавно исчезнет за это время.
+  # The "window" of a flag's lifetime in seconds. VL from a flag will gradually decay over this time.
+  window: 600
+
+  # Запись движений мыши.
+  # Recording mouse movements
+  combat-timer-seconds: 6
+
+#                   Настройки оповещений (Alerts)
+alerts:
+  # Включить оповещения для администрации?
+  # Enable alerts for administrators?
+  enabled: true
+  # Право, необходимое для получения оповещений.
+  # Permission required to receive alerts.
+  permission: "snapai.alerts"
+  discord:
+    enabled: false
+    webhook-url: ""
+    username: "SnapAI"
+    avatar-url: ""
+    color: 3834837
+
+#                   Настройки голограммы вердиктов
+hologram:
+  height-offset: 0.5 # Высота над головой игрока
+
+#                   Автоматические наказания
+#                       Automatic Punishments
+auto-punishment:
+  # Режим автоматического наказания. Выберите один:
+  # Punishment mode. Choose one:
+  #
+  #   INSTANT     - Мгновенное наказание. Выполняет команду, указанную ниже.
+  #                 Instant punishment. Executes the command specified below.
+  #
+  #   ANIMATED    - Наказание с анимацией. Выполняет команду из секции 'punishment-animation'.
+  #                 Punishment with animation. Executes the command from the 'punishment-animation' section.
+  #
+  #   PROGRESSIVE - Прогрессивные наказания. Использует несколько порогов и команд из секции 'progressive-punishment'.
+  #                 Progressive punishments. Uses multiple thresholds and commands from the 'progressive-punishment' section.
+  #
+  #   ALERTS_ONLY - Только оповещения. Не наказывает игроков автоматически.
+  #                 Alerts only. Does not punish players automatically.
+  mode: PROGRESSIVE
+
+  # Команда, которая выполняется ТОЛЬКО для режима 'INSTANT'.
+  # Command executed ONLY for the 'INSTANT' mode.
+  command: "ban %player% Your account has been blocked by the SnapAI system."
+
+# Настройки для режима 'PROGRESSIVE'
+# Settings for 'PROGRESSIVE' mode
+progressive-punishment:
+  # Сбрасывать ли VL до 0 после наказания?
+  # Reset VL to 0 after punishment?
+  reset-vl-after-punishment: true
+  # Список шагов наказания. Должны идти по возрастанию порога (threshold).
+  # List of punishment steps. Must be in increasing order of threshold.
+  steps:
+    - threshold: 3
+      command: "snapai punish %player%"
+    - threshold: 5
+      command: "tempban %player% 1h &#63CFF1SnapAI detected suspicious behavior"
+    - threshold: 8
+      command: "tempban %player% 1d &#63CFF1SnapAI detected suspicious behavior"
+    - threshold: 10
+      command: "ban %player% &#63CFF1SnapAI detected suspicious behavior"
+
+#                      Система митигаций (Mitigations)
+mitigations:
+  # Включить систему митигаций? Митигации - это активное противодействие читам.
+  # Enable the mitigation system? Mitigations are active countermeasures against cheats.
+  enabled: true
+
+  # Настройки активации / Activation Settings
+  activation:
+    # Режим активации митигаций. Выберите один:
+    # Mitigation activation mode. Choose one:
+    #
+    #   VL_THRESHOLD   - По достижению фиксированного порога VL.
+    #                    Activates upon reaching a fixed VL threshold.
+    #
+    #   SCALING_CHANCE - Шанс активации плавно растет вместе с VL. (РЕКОМЕНДУЕТСЯ)
+    #                    Activation chance scales up with the player's VL. (RECOMMENDED)
+    #
+    #   FLAG_STREAK    - Активация после серии быстрых флагов. Для отлова явных нарушителей.
+    #                    Activates after a quick series of flags. For catching blatant cheaters.
+    mode: SCALING_CHANCE
+    threshold:
+      vl: 4.0
+    scaling-chance:
+      min-vl: 3.0
+      max-vl: 8.0
+    flag-streak:
+      flags-needed: 3
+      time-window-seconds: 20
+  duration-seconds: 15
+
+  types:
+    ghost-hits:
+      enabled: true
+      chance: 0.25
+    aim-punch:
+      enabled: true
+      horizontal-strength: 3.0
+      vertical-strength: 1.5
+    damage-reduction:
+      enabled: true
+      multiplier: 0.7
+    jump-cancel:
+      enabled: true
+      chance: 0.8
+      downward-force: -0.2
+
+punishment-animation:
+  enabled: true
+  duration: 5
+  levitation-strength: 1
+  particle:
+    type: REDSTONE
+    color: ORANGE
+    size: 1.0
+    radius: 1.5
+    count: 10
+  sounds:
+    start-sound: ENTITY_EVOKER_PREPARE_SUMMON
+    end-sound: ENTITY_WITHER_DEATH
+  command: "kick %player% &#63CFF1SnapAI detected suspicious behavior"
+
+legacy-checks:
+  vertex:
+    prefix: '#ffc84aSnapAI'
+  vl-increment: 0.25
+  checks:
+    AimA:
+      max-violations: 5
+      remove-violations-after: 60
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 1
+      buffer-decrease: 0.05
+      hit-cancel-ticks: 40
+
+    AimB:
+      max-violations: 10
+      remove-violations-after: 60
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 9
+      buffer-decrease: 0.5
+      hit-cancel-ticks: 10
+
+    AimC:
+      max-violations: 15
+      remove-violations-after: 60
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 2
+      buffer-decrease: 0.5
+      hit-cancel-ticks: 10
+
+    AimD:
+      max-violations: 5
+      remove-violations-after: 120
+      decay: 1
+      enabled: true
+      alert: true
+      hit-cancel-ticks: 40
+
+    AimE:
+      max-violations: 15
+      remove-violations-after: 120
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 9
+      buffer-decrease: 1
+      hit-cancel-ticks: 20
+
+    AimF:
+      max-violations: 5
+      remove-violations-after: 60
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 1
+      buffer-decrease: 0.1
+      hit-cancel-ticks: 40
+
+    AimH:
+      max-violations: 30
+      remove-violations-after: 120
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 4
+      buffer-decrease: 0.5
+      hit-cancel-ticks: 15
+
+    AimI:
+      max-violations: 30
+      remove-violations-after: 120
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 2
+      buffer-decrease: 0.25
+      min-delta: 0.35
+      attack-window-ms: 650
+      hit-cancel-ticks: 15
+
+    AimJ:
+      max-violations: 30
+      remove-violations-after: 60
+      decay: 1
+      enabled: true
+      alert: true
+      hit-cancel-ticks: 15
+
+    AimK:
+      max-violations: 2
+      remove-violations-after: 60
+      decay: 1
+      enabled: true
+      alert: true
+      hit-cancel-ticks: 15
+
+    AuraA:
+      max-violations: 10
+      remove-violations-after: 60
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 2
+      buffer-decrease: 0.5
+      hit-cancel-ticks: 100
+
+    AuraB:
+      max-violations: 10
+      remove-violations-after: 60
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 1
+      buffer-decrease: 0.25
+      hit-cancel-ticks: 40
+
+    AuraC:
+      max-violations: 15
+      remove-violations-after: 120
+      decay: 1
+      enabled: true
+      alert: true
+      max-buffer: 0
+      buffer-decrease: 0
+      hit-cancel-ticks: 0
+
+    AuraS:
+      max-violations: 10
+      remove-violations-after: 120
+      decay: 1
+      enabled: false
+      alert: true
+      max-buffer: 6
+      buffer-decrease: 0.6
+      fov-threshold: 155.0
+      near-fov-threshold: 110.0
+      rotation-stale-ms: 350
+      min-delta-yaw: 0.4
+      min-target-movement: 0.08
+      consecutive-required: 4
+      hit-cancel-ticks: 0
+
+    AuraN:
+      enabled: true
+      alert: true
+      max-buffer: 5.0
+      buffer-decrease: 0.94
+      max-angle: 60.0
+      min-distance: 1.2
+      debug: false
+      max-violations: 10
+      remove-violations-after: 120
+      decay: 1
+      hit-cancel-ticks: 20
+
+    ActionData:
+      combat-ticks: 60

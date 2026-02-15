@@ -1,0 +1,124 @@
+# English messages for SnapAI
+no-permission: "&cYou do not have permission to use this command."
+player-only-command: "&cThis command can only be used by a player."
+unknown-subcommand: "&cUnknown subcommand. Use /snapai for help."
+player-not-found: "&cPlayer %player% not found."
+
+alerts:
+  message: "&8[&3SnapAI&8] &f%player% &bis suspected of cheating &8(&3%probability% | VL: %vl%&8)"
+  toggled-on: "&aSnapAI alerts enabled."
+  toggled-off: "&cSnapAI alerts disabled."
+
+help:
+  header: "&b>>> SnapAI Help <<<"
+  entry: "&6%usage% &f- %description%"
+
+commands:
+  alerts:
+    help-usage: "/snapai alerts"
+    help-description: "Toggle alerts for yourself"
+
+  hud:
+    help-usage: "/snapai hud <player>"
+    help-description: "Toggle Live-verdict HUD above a player's head"
+    usage-error: "&cError! Please specify a player name."
+    enabled: "&8[&3SnapAI&8] &aHUD activated for player &f%target%&a."
+    disabled: "&8[&3SnapAI&8] &cHUD deactivated."
+
+  check:
+    help-usage: "/snapai check <player>"
+    help-description: "Show the last 5 neural network verdicts"
+
+  reload:
+    help-usage: "/snapai reload"
+    help-description: "Reload configuration, messages, and checks"
+    success: "&8[&3SnapAI&8] &aConfiguration, language, and checks reloaded successfully."
+
+  history:
+    usage: "&cUsage: /snapai history <player>"
+    loading: "&3Loading history for %player%..."
+    no-history: "&aPlayer %player% has no registered violations."
+    header: "&8>><< &3Violation History: %player% &8>><<"
+    entry: "&f%date% &8- &3%probability%"
+    help-usage: "/snapai history <player>"
+    help-description: "Show player violation history"
+
+  stats:
+    usage: "&cUsage: /snapai stats <player>"
+    loading: "&3Loading statistics for %player%..."
+    header: "&8>><< &3Statistics: %player% &8>><<"
+    total-violations: "&3Total violations in database: &f%count%"
+    average-probability: "&3Average probability: &f%avg_prob%%"
+    last-violation: "&3Last violation: &f%date%"
+    help-usage: "/snapai stats <player>"
+    help-description: "Show player violation statistics"
+
+  crash:
+    usage: "&cUsage: /snapai crash <player> [mode]"
+    modes-description: "&eModes: entities (spawn entities), explosion (powerful explosion), particles (particle overload), custompayload (corrupted packets)"
+    player-not-found: "&cPlayer not found: %player%"
+    cannot-crash-self: "&cYou cannot crash your own client!"
+    unknown-mode: "&cUnknown mode. Available modes: entities, explosion, particles, custompayload"
+    success: "&aInitializing crash for %player% using %mode% method"
+    failed: "&cCrash failed: %error%"
+    help-usage: "/snapai crash <player> [mode]"
+    help-description: "Crash a player's client using various methods"
+
+  punish:
+    usage: "&cUsage: /snapai punish <player> [reason]"
+    player-punished: "&aPlayer %player% has been punished."
+    no-reason: "&cNo reason specified."
+    help-usage: "/snapai punish <player>"
+    help-description: "Trigger punishment animation for a player"
+
+  token:
+    usage: "&cUsage: /snapai token set <token>|clear|info"
+    invalid-token: "&cInvalid token"
+    token-activated: "&aToken activated! Your subscription has been extended."
+    already-active: "&cYou already have an active subscription."
+    saved: "&aToken saved. Validating..."
+    valid: "&aToken is valid."
+    invalid: "&cToken is invalid."
+    cleared: "&aToken cleared."
+    set-hint: "&7Use /snapai token set <token> to set a token."
+    info-header: "&6=== Token Information ==="
+    info-token: "&eStored Token: &7%token%"
+    info-premium: "&ePremium Status: &7%value%"
+    info-days: "&eRemaining Days: &7%days%"
+    info-ip: "&eLast IP: &7%ip%"
+    info-can-rebind: "&eCan rebind IP: &7%value%"
+    validate: "&aActive"
+    nvalidate: "&cInactive"
+    help-usage: "/snapai token set <token>|clear|info"
+    help-description: "Manage authorization token"
+
+  server:
+    usage: "&cUsage: /snapai server <action>"
+    reloaded: "&aServer configuration reloaded."
+    stats-generated: "&aStatistics generated."
+    invalid-action: "&cInvalid action."
+    help-usage: "/snapai server <subcommand>"
+    help-description: "Manage AI server"
+
+  record:
+    help-description: "Manage data collection for AI training"
+    help-usage: "/snapai record <start/stop> <player> [1/0] [amount]"
+    usage: "&cUsage: /snapai record <start/stop> <player> [1/0] [amount]"
+    started: "&aRecording started for &f%player%&a! Type: &f%type%&a. Plan: &e%amount% &asets."
+    stopped: "&eRecording for &f%player% &estopped."
+
+console:
+  ml-flag: "[SnapAI] ML flag: %player% prob=%prob% VL=%vl%"
+  check-flag: "[SnapAI] Check: %player% check=%check% VL=%vl%"
+
+webhook:
+  title: "SnapAI"
+  description-ml: "AI detected %player% (%probability%)"
+  description-check: "Check %check% triggered on %player%"
+  footer: "Automatic notification"
+  detection-ml: "AI"
+  fields:
+    player: "Player"
+    detection: "Detection"
+    probability: "Probability"
+    vl: "Violation Level"
